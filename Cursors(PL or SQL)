@@ -1,0 +1,25 @@
+CREATE TABLE Products(
+Product_id NUMBER PRIMARY KEY,
+Product_Name VARCHAR2(100),
+Product_Type VARCHAR2(50),
+Price NUMBER(10,2)
+);
+
+
+DECLARE
+CURSOR c_expensive IS
+SELECT * FROM Products WHERE Price>5000;
+
+v_rec c_expensive%ROWTYPE;
+BEGIN
+OPEN c_expensive;
+LOOP
+FETCH c_expensive INTO v_rec;
+EXIT WHEN c_expensive%NOTFOUND;
+
+DBMS_OUTPUT.PUT_LINE(v_rec.Product_Name);
+
+END LOOP;
+CLOSE c_expensive;
+END;
+/
