@@ -1,0 +1,71 @@
+CREATE DATABASE IF NOT EXISTS BankDDL;
+USE BankDDL;
+
+
+CREATE TABLE Customer (
+    CustID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Cust_Address VARCHAR(200),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(100),
+    Age INT
+);
+
+CREATE TABLE Branch (
+    Branch_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Branch_Name VARCHAR(100) NOT NULL,
+    Address VARCHAR(200)
+);
+
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT NOT NULL,
+    CustID INT NOT NULL,
+    date_open DATE,
+    Account_type VARCHAR(50),
+    Balance DECIMAL(12,2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID) ON DELETE CASCADE,
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID) ON DELETE CASCADE
+);
+
+
+INSERT INTO Customer (Name, Cust_Address, Phone_no, Email_ID, Age) VALUES
+('Amit Sharma', 'Pune',   '9876543210', 'amit@mail.com', 30),
+('Anita Desai', 'Mumbai', '9823456781', 'anita@mail.com', 42);
+
+INSERT INTO Branch (Branch_Name, Address) VALUES
+('Pune Branch', 'Camp, Pune'),
+('Mumbai Branch', 'Dadar, Mumbai');
+
+INSERT INTO Account VALUES
+(1001, 1, 1, '2020-06-15', 'Saving Account', 65000),
+(1002, 2, 2, '2019-03-20', 'Current Account', 45000);
+
+
+CREATE INDEX idx_account_pk ON Account(Account_no);
+
+
+CREATE VIEW Customer_Info AS
+SELECT c.CustID, c.Name, c.Cust_Address, c.Age,
+       a.Account_no, a.date_open, a.Balance
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE c.Age < 45;
+
+SELECT * FROM Customer_Info;
+
+
+UPDATE Account SET date_open = '2017-04-16'
+WHERE Account_no IN (
+    SELECT Account_no FROM Customer_Info
+);
+
+
+ALTER TABLE Branch AUTO_INCREMENT = 100;
+INSERT INTO Branch (Branch_Name, Address)
+VALUES ('New Branch', 'New Location');
+
+
+CREATE VIEW Branch_info AS SELECT * FROM Branch;
+
+SELECT * FROM Branch_info;
