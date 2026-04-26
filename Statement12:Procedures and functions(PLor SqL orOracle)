@@ -1,0 +1,87 @@
+CREATE TABLE Employee (
+    emp_id NUMBER PRIMARY KEY,
+    dept_id NUMBER,
+    emp_name VARCHAR2(100),
+    DoJ DATE,
+    salary NUMBER(12,2),
+    commission NUMBER(10,4),
+    job_title VARCHAR2(100)
+);
+
+
+INSERT INTO Employee VALUES (301, 10, 'Ravi Kumar', DATE '2010-01-01', 12000, NULL, 'Manager');
+INSERT INTO Employee VALUES (302, 20, 'Priya Das', DATE '2018-06-15', 8000, NULL, 'Analyst');
+INSERT INTO Employee VALUES (303, 10, 'Sam Patel', DATE '2005-03-10', 2500, NULL, 'Clerk');
+INSERT INTO Employee VALUES (304, 30, 'Anita Roy', DATE '2016-09-20', 9000, NULL, 'Developer');
+COMMIT;
+
+
+CREATE OR REPLACE PROCEDURE calc_commission
+AS
+    v_experience NUMBER;
+    v_commission NUMBER;
+BEGIN
+    FOR rec IN (SELECT emp_id, salary, DoJ FROM Employee) LOOP
+        v_experience := MONTHS_BETWEEN(SYSDATE, rec.DoJ) / 12;
+
+        IF rec.salary > 10000 THEN
+            v_commission := rec.salary * 0.004;
+        ELSIF rec.salary < 10000 AND v_experience > 10 THEN
+            v_commission := rec.salary * 0.0035;
+        ELSIF rec.salary < 3000 THEN
+            v_commission := rec.salary * 0.0025;
+        ELSE
+            v_commission := rec.salary * 0.0015;
+        END IF;
+
+        UPDATE Employee
+        SET commission = v_commission
+        WHERE emp_id = rec.emp_id;
+
+        DBMS_OUTPUT.PUT_LINE('Emp: ' || rec.emp_id || ' | Commission: ' || v_commission);
+    END LOOP;
+    COMMIT;
+END;
+/
+
+
+SET SERVEROUTPUT ON;
+EXEC calc_commission;
+SELECT emp_id, emp_name, salary, commission FROM Employee;
+
+
+CREATE TABLE Departments (
+    dept_id NUMBER PRIMARY KEY,
+    dept_name VARCHAR2(100),
+    manager_name VARCHAR2(100)
+);
+
+INSERT INTO Departments VALUES (10, 'Development', 'Ravi Kumar');
+INSERT INTO Departments VALUES (20, 'Analytics', 'Priya Das');
+INSERT INTO Departments VALUES (30, 'QA', 'Sam Patel');
+COMMIT;
+
+CREATE OR REPLACE FUNCTION get_manager_name(p_dept_id IN NUMBER)
+RETURN VARCHAR2
+AS
+    v_manager VARCHAR2(100);
+BEGIN
+    SELECT manager_name INTO v_manager
+    FROM Departments
+    WHERE dept_id = p_dept_id;
+
+    RETURN v_manager;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'Department not found';
+END;
+/
+
+
+DECLARE
+    v_result VARCHAR2(100);
+BEGIN
+    v_result := get_manager_name(10);
+    DBMS_OUTPUT.PUT_LINE('Manager of Dept 10: ' || v_result);
+END;
+/
