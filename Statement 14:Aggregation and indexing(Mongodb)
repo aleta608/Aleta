@@ -1,0 +1,107 @@
+📝 Language: MongoDB Shell.
+
+Step 1: Create Collection & Insert Sample Data
+
+use StudentDB;
+
+db.Student_Data.insertMany([
+
+  { Student_ID: 1,  Student_Name: "Ravi Kumar",   Department: "Computer",     Marks: 88 },
+
+  { Student_ID: 2,  Student_Name: "Priya Das",    Department: "Electronics",  Marks: 75 },
+
+  { Student_ID: 3,  Student_Name: "Arjun Patel",  Department: "Computer",     Marks: 92 },
+
+  { Student_ID: 4,  Student_Name: "Sneha Joshi",  Department: "Mechanical",   Marks: 65 },
+
+  { Student_ID: 5,  Student_Name: "Sam Nair",     Department: "Computer",     Marks: 79 },
+
+  { Student_ID: 6,  Student_Name: "Anita Roy",    Department: "Electronics",  Marks: 84 },
+
+  { Student_ID: 7,  Student_Name: "Karan Mehta",  Department: "Mechanical",   Marks: 71 },
+
+  { Student_ID: 8,  Student_Name: "Kavya Singh",  Department: "Computer",     Marks: 95 },
+
+  { Student_ID: 9,  Student_Name: "Rohan Das",    Department: "Electronics",  Marks: 68 },
+
+  { Student_ID: 10, Student_Name: "Meena Patil",  Department: "Mechanical",   Marks: 80 }
+
+]);
+
+Query 1: Students per department with average marks
+
+db.Student_Data.aggregate([
+
+  {
+
+    $group: {
+
+      _id: "$Department",
+
+      Avg_Marks:     { $avg: "$Marks" },
+
+      Student_Count: { $sum: 1 }
+
+    }
+
+  }
+
+]);
+
+Query 2: Number of students per department
+
+db.Student_Data.aggregate([
+
+  {
+
+    $group: {
+
+      _id: "$Department",
+
+      Student_Count: { $sum: 1 }
+
+    }
+
+  }
+
+]);
+
+Query 3: Student with highest marks per department in descending order
+
+db.Student_Data.aggregate([
+
+  { $sort: { Marks: -1 } },
+
+  {
+
+    $group: {
+
+      _id: "$Department",
+
+      Top_Student: { $first: "$Student_Name" },
+
+      Max_Marks:   { $first: "$Marks" }
+
+    }
+
+  },
+
+  { $sort: { Max_Marks: -1 } }
+
+]);
+
+Query 4: Create Index on Student_ID
+
+db.Student_Data.createIndex({ Student_ID: 1 });
+
+Query 5: Create Compound Index on Student_Name and Department
+
+db.Student_Data.createIndex({ Student_Name: 1, Department: 1 });
+
+Query 6: Drop Index on Student_ID
+
+db.Student_Data.dropIndex({ Student_ID: 1 });
+
+Query 7: Drop Compound Index on Student_Name and Department
+
+db.Student_Data.dropIndex({ Student_Name: 1, Department: 1 });
