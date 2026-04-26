@@ -1,0 +1,27 @@
+use SocialDB;
+
+db.Social_Media.insertMany([
+  { User_Id:1, User_Name:"alice", No_of_Posts:150, No_of_Friends:12, Friends_List:["bob","carol","dave"], Interests:["music","travel"] },
+  { User_Id:2, User_Name:"bob", No_of_Posts:80, No_of_Friends:7, Friends_List:["alice","eve"], Interests:["coding","gaming"] },
+  { User_Id:3, User_Name:"carol", No_of_Posts:220, No_of_Friends:20, Friends_List:["alice","frank","geo"], Interests:["art","cooking"] },
+  { User_Id:4, User_Name:"dave", No_of_Posts:45, No_of_Friends:3, Friends_List:["alice"], Interests:["sports"] },
+  { User_Id:5, User_Name:"eve", No_of_Posts:310, No_of_Friends:15, Friends_List:["bob","henry","iris"], Interests:["photography","travel"] }
+]);
+
+
+db.Social_Media.find().pretty();
+
+
+db.Social_Media.find({ No_of_Posts: { $gt: 100 } }).pretty();
+
+
+db.Social_Media.find({}, { User_Name:1, Friends_List:1, _id:0 }).pretty();
+
+
+db.Social_Media.find(
+ { No_of_Friends:{ $gt:5 } },
+ { User_Id:1, Friends_List:1, _id:0 }
+).pretty();
+
+
+db.Social_Media.find().sort({ No_of_Posts:-1 }).pretty();
