@@ -1,15 +1,103 @@
-use MovieDB
+📝 Language: MongoDB Shell.
+
+Step 1: Create Collection & Insert Sample Data
+
+use MovieDB;
 
 db.Movies_Data.insertMany([
-{Movie_ID:1,Movie_Name:"Inception",Director:"Christopher Nolan",Genre:"Sci-Fi",BoxOfficeCollection:836000000},
-{Movie_ID:2,Movie_Name:"The Dark Knight",Director:"Christopher Nolan",Genre:"Action",BoxOfficeCollection:1004000000}
-])
+
+{ Movie_ID:1, Movie_Name:"Inception", Director:"Christopher Nolan", Genre:"Sci-Fi", BoxOfficeCollection:836000000 },
+
+{ Movie_ID:2, Movie_Name:"The Dark Knight", Director:"Christopher Nolan", Genre:"Action", BoxOfficeCollection:1004000000 },
+
+{ Movie_ID:3, Movie_Name:"Interstellar", Director:"Christopher Nolan", Genre:"Sci-Fi", BoxOfficeCollection:677000000 },
+
+{ Movie_ID:4, Movie_Name:"Avengers Endgame", Director:"Russo Brothers", Genre:"Action", BoxOfficeCollection:2797000000 },
+
+{ Movie_ID:5, Movie_Name:"Parasite", Director:"Bong Joon-ho", Genre:"Drama", BoxOfficeCollection:258000000 }
+
+]);
+
+Step 2: Count of Movies per Director
 
 db.Movies_Data.aggregate([
-{$group:{_id:"$Director",Movie_Count:{$sum:1}}},
-{$sort:{Movie_Count:-1}}
-])
 
-db.Movies_Data.createIndex({Movie_ID:1})
+{
 
-db.Movies_Data.dropIndex({Movie_ID:1})
+$group: {
+
+_id: "$Director",
+
+Movie_Count: { $sum: 1 }
+
+}
+
+},
+
+{ $sort: { Movie_Count: -1 } }
+
+]);
+
+Step 3: Movie with Highest BoxOfficeCollection in Each Genre
+
+db.Movies_Data.aggregate([
+
+{ $sort: { BoxOfficeCollection: -1 } },
+
+{
+
+$group: {
+
+_id: "$Genre",
+
+Movie_Name: { $first: "$Movie_Name" },
+
+Director: { $first: "$Director" },
+
+BoxOfficeCollection: { $first: "$BoxOfficeCollection" }
+
+}
+
+}
+
+]);
+
+Step 4: Same as Above in Ascending Order
+
+db.Movies_Data.aggregate([
+
+{ $sort: { BoxOfficeCollection: -1 } },
+
+{
+
+$group: {
+
+_id: "$Genre",
+
+Movie_Name: { $first: "$Movie_Name" },
+
+Director: { $first: "$Director" },
+
+BoxOfficeCollection: { $first: "$BoxOfficeCollection" }
+
+}
+
+},
+
+{ $sort: { BoxOfficeCollection: 1 } }
+
+]);
+
+Step 5: Create Index on Movie_ID
+
+db.Movies_Data.createIndex({ Movie_ID:1 });
+
+Step 6: Create Compound Index
+
+db.Movies_Data.createIndex({ Movie_Name:1, Director:1 });
+
+Step 7: Drop Indexes
+
+db.Movies_Data.dropIndex({ Movie_ID:1 });
+
+db.Movies_Data.dropIndex({ Movie_Name:1, Director:1 });
