@@ -1,0 +1,42 @@
+USE EmpDB;
+
+
+INSERT INTO Employee VALUES
+(108, 'Priya', 'Singh', '2012-06-01', 72000, 'Analyst', 2, 2),
+(109, 'Jones', 'Jones', '2000-01-20', 48000, 'Clerk', 3, 3);
+
+
+SELECT First_name, Last_name, Salary
+FROM Employee
+WHERE Salary > (
+    SELECT Salary FROM Employee WHERE Last_name = 'Singh' LIMIT 1
+);
+
+
+SELECT e.First_name, e.Last_name
+FROM Employee e
+JOIN Departments d ON e.Department_id = d.Department_id
+JOIN Locations l ON d.Location_id = l.Location_id
+WHERE e.Manager_id IS NOT NULL
+  AND l.Country_id = 'US';
+
+
+SELECT First_name, Last_name, Salary
+FROM Employee
+WHERE Salary > (SELECT AVG(Salary) FROM Employee);
+
+
+SELECT e.Employee_id,
+       e.Last_name AS Employee_Last_Name,
+       e.Manager_id,
+       m.Manager_name
+FROM Employee e
+LEFT JOIN Manager m ON e.Manager_id = m.Manager_id;
+
+
+SELECT First_name, Last_name, Hire_date
+FROM Employee
+WHERE Hire_date > (
+    SELECT Hire_date FROM Employee WHERE Last_name = 'Jones' LIMIT 1
+)
+ORDER BY Hire_date;
