@@ -1,27 +1,49 @@
+📝 Language: MongoDB Shell.
+
+Step 1: Insert Documents into Social_Media
+
 use SocialDB;
 
 db.Social_Media.insertMany([
-  { User_Id:1, User_Name:"alice", No_of_Posts:150, No_of_Friends:12, Friends_List:["bob","carol","dave"], Interests:["music","travel"] },
-  { User_Id:2, User_Name:"bob", No_of_Posts:80, No_of_Friends:7, Friends_List:["alice","eve"], Interests:["coding","gaming"] },
-  { User_Id:3, User_Name:"carol", No_of_Posts:220, No_of_Friends:20, Friends_List:["alice","frank","geo"], Interests:["art","cooking"] },
-  { User_Id:4, User_Name:"dave", No_of_Posts:45, No_of_Friends:3, Friends_List:["alice"], Interests:["sports"] },
-  { User_Id:5, User_Name:"eve", No_of_Posts:310, No_of_Friends:15, Friends_List:["bob","henry","iris"], Interests:["photography","travel"] }
+
+{ User_Id:1, User_Name:"alice", No_of_Posts:150, No_of_Friends:12, Friends_List:["bob","carol"], Interests:["music","travel"] },
+
+{ User_Id:2, User_Name:"bob", No_of_Posts:80, No_of_Friends:7, Friends_List:["alice"], Interests:["coding","gaming"] },
+
+{ User_Id:3, User_Name:"carol", No_of_Posts:220, No_of_Friends:20, Friends_List:["alice"], Interests:["art","cooking"] },
+
+{ User_Id:4, User_Name:"dave", No_of_Posts:45, No_of_Friends:3, Friends_List:["alice"], Interests:["sports"] },
+
+{ User_Id:5, User_Name:"eve", No_of_Posts:310, No_of_Friends:15, Friends_List:["bob"], Interests:["photography","travel"] }
+
 ]);
 
+Step 2: List all users
 
 db.Social_Media.find().pretty();
 
-
-db.Social_Media.find({ No_of_Posts: { $gt: 100 } }).pretty();
-
-
-db.Social_Media.find({}, { User_Name:1, Friends_List:1, _id:0 }).pretty();
-
+Step 3: Users with more than 100 posts
 
 db.Social_Media.find(
- { No_of_Friends:{ $gt:5 } },
- { User_Id:1, Friends_List:1, _id:0 }
+{ No_of_Posts: { $gt: 100 } }
 ).pretty();
 
+Step 4: User names and Friends_List
 
-db.Social_Media.find().sort({ No_of_Posts:-1 }).pretty();
+db.Social_Media.find(
+{},
+{ User_Name:1, Friends_List:1, _id:0 }
+).pretty();
+
+Step 5: User IDs and Friends_List where No_of_Friends > 5
+
+db.Social_Media.find(
+{ No_of_Friends:{ $gt:5 } },
+{ User_Id:1, Friends_List:1, _id:0 }
+).pretty();
+
+Step 6: All users sorted by No_of_Posts descending
+
+db.Social_Media.find()
+.sort({ No_of_Posts:-1 })
+.pretty();
