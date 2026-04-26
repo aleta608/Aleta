@@ -1,0 +1,35 @@
+CREATE DATABASE BankDB;
+USE BankDB;
+
+
+CREATE TABLE Customer(
+CustID INT PRIMARY KEY,
+Name VARCHAR(100),
+Cust_Address VARCHAR(200),
+Email_ID VARCHAR(100),
+Age INT
+);
+
+CREATE TABLE Account(
+Account_no INT PRIMARY KEY,
+CustID INT,
+Balance DECIMAL(12,2)
+);
+
+
+ALTER TABLE Customer
+MODIFY Email_ID VARCHAR(20);
+
+
+ALTER TABLE Customer
+MODIFY Email_ID VARCHAR(20) NOT NULL;
+
+
+SELECT COUNT(*) AS Total_Customers
+FROM Account
+WHERE Balance>50000;
+
+
+SELECT AVG(Balance)
+FROM Account
+WHERE Account_type='Saving Account';
