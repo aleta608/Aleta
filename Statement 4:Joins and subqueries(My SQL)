@@ -1,31 +1,141 @@
-CREATE DATABASE EmpDB;
+📝 Language: MySQL.
+
+Step 1: Create Tables with Referential Integrity
+
+CREATE DATABASE IF NOT EXISTS EmpDB;
+
 USE EmpDB;
 
+CREATE TABLE Manager (
 
-CREATE TABLE Manager(
-Manager_id INT PRIMARY KEY,
-Manager_name VARCHAR(100)
+    Manager_id   INT PRIMARY KEY,
+
+    Manager_name VARCHAR(100)
+
 );
 
-CREATE TABLE Departments(
-Department_id INT PRIMARY KEY,
-Department_name VARCHAR(100),
-Manager_id INT
+CREATE TABLE Departments (
+
+    Department_id   INT PRIMARY KEY,
+
+    Department_name VARCHAR(100),
+
+    Manager_id      INT,
+
+    Location_id     INT,
+
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id)
+
 );
 
-CREATE TABLE Employee(
-Employee_id INT PRIMARY KEY,
-First_name VARCHAR(50),
-Last_name VARCHAR(50),
-Salary DECIMAL(10,2),
-Department_id INT
+CREATE TABLE Locations (
+
+    Location_id    INT PRIMARY KEY,
+
+    Street_address VARCHAR(200),
+
+    Postal_code    VARCHAR(20),
+
+    City           VARCHAR(100),
+
+    State          VARCHAR(100),
+
+    Country_id     VARCHAR(10)
+
 );
 
+CREATE TABLE Employee (
 
-SELECT e.First_name,e.Last_name,e.Salary
+    Employee_id   INT PRIMARY KEY,
+
+    First_name    VARCHAR(50),
+
+    Last_name     VARCHAR(50),
+
+    Hire_date     DATE,
+
+    Salary        DECIMAL(10,2),
+
+    Job_title     VARCHAR(100),
+
+    Manager_id    INT,
+
+    Department_id INT,
+
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+
+    FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+
+);
+
+Step 2: Insert Sample Data
+
+INSERT INTO Manager VALUES
+(1,'David Lee'),
+(2,'Sarah Kim'),
+(3,'Tom Brown');
+
+INSERT INTO Locations VALUES
+(10,'100 Main St','411001','Pune','MH','IN'),
+(20,'200 Tech Ave','560001','Bangalore','KA','IN'),
+(30,'300 Silicon Way','94025','San Francisco','CA','US'),
+(40,'400 Wall St','10001','New York','NY','US');
+
+INSERT INTO Departments VALUES
+(1,'IT',1,30),
+(2,'HR',2,40),
+(3,'Finance',3,10),
+(4,'IT Support',1,40);
+
+INSERT INTO Employee VALUES
+(101,'John','Doe','2005-01-15',70000,'Developer',1,1),
+(102,'Jane','Smith','2008-03-20',55000,'Analyst',2,2),
+(103,'Raj','Singh','2010-07-01',90000,'Manager',1,1),
+(104,'Amy','Jones','2003-05-10',45000,'HR Officer',2,2),
+(105,'Max','Brown','2015-11-30',60000,'IT Support',3,4),
+(106,'Eva','White','2006-08-25',80000,'Developer',1,1),
+(107,'Sam','Black','2001-02-14',95000,'Senior Dev',1,1);
+
+Step 3: Employees earning above average & working in IT departments
+
+SELECT e.First_name, e.Last_name, e.Salary
 FROM Employee e
-JOIN Departments d
-ON e.Department_id=d.Department_id
-WHERE e.Salary >
-(SELECT AVG(Salary) FROM Employee)
+JOIN Departments d ON e.Department_id = d.Department_id
+WHERE e.Salary > (SELECT AVG(Salary) FROM Employee)
 AND d.Department_name LIKE '%IT%';
+
+Step 4: Employees earning the minimum salary across all departments
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary = (
+SELECT MIN(e2.Salary)
+FROM Employee e2
+JOIN Departments d ON e2.Department_id = d.Department_id
+);
+
+Step 5: Employees with salary above their department's average
+
+SELECT e.Employee_id, e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (
+SELECT AVG(e2.Salary)
+FROM Employee e2
+WHERE e2.Department_id = e.Department_id
+);
+
+Step 6: Department name, Manager name, and City
+
+SELECT d.Department_name, m.Manager_name, l.City
+FROM Departments d
+JOIN Manager m ON d.Manager_id = m.Manager_id
+JOIN Locations l ON d.Location_id = l.Location_id;
+
+Step 7: Managers with more than 15 years of experience
+
+SELECT e.First_name, e.Last_name, e.Hire_date, e.Salary
+FROM Employee e
+WHERE e.Employee_id IN (
+SELECT DISTINCT Manager_id FROM Employee WHERE Manager_id IS NOT NULL
+)
+AND TIMESTAMPDIFF(YEAR, e.Hire_date, CURDATE()) > 15;
