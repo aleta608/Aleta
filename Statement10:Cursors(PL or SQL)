@@ -1,57 +1,119 @@
+📝 Language: PL/SQL (Oracle).
+
+Step 1: Create & Populate Employee Table
+
 CREATE TABLE Employee (
+
     Emp_id NUMBER PRIMARY KEY,
+
     Emp_Name VARCHAR2(100),
+
     Salary NUMBER(10,2)
+
 );
 
-INSERT INTO Employee VALUES (1, 'Ravi Kumar', 75000);
-INSERT INTO Employee VALUES (2, 'Priya Singh', 45000);
-INSERT INTO Employee VALUES (3, 'Arjun Das', 90000);
-INSERT INTO Employee VALUES (4, 'Meena Joshi', 30000);
-INSERT INTO Employee VALUES (5, 'Sam Patel', 60000);
+INSERT INTO Employee VALUES (1,'Ravi Kumar',75000);
+
+INSERT INTO Employee VALUES (2,'Priya Singh',45000);
+
+INSERT INTO Employee VALUES (3,'Arjun Das',90000);
+
+INSERT INTO Employee VALUES (4,'Meena Joshi',30000);
+
+INSERT INTO Employee VALUES (5,'Sam Patel',60000);
+
 COMMIT;
 
+Step 2: Explicit Cursor – Employees with Salary > 50,000
 
 DECLARE
- CURSOR c_emp IS
-   SELECT * FROM Employee WHERE Salary > 50000;
- v_rec c_emp%ROWTYPE;
+
+CURSOR c_emp IS
+
+SELECT * FROM Employee WHERE Salary > 50000;
+
+v_rec c_emp%ROWTYPE;
+
 BEGIN
- OPEN c_emp;
- LOOP
-   FETCH c_emp INTO v_rec;
-   EXIT WHEN c_emp%NOTFOUND;
-   DBMS_OUTPUT.PUT_LINE('ID: ' || v_rec.Emp_id || ' | Name: ' || v_rec.Emp_Name || ' | Salary: ' || v_rec.Salary);
- END LOOP;
- CLOSE c_emp;
+
+DBMS_OUTPUT.PUT_LINE('Employees with Salary > 50,000:');
+
+OPEN c_emp;
+
+LOOP
+
+FETCH c_emp INTO v_rec;
+
+EXIT WHEN c_emp%NOTFOUND;
+
+DBMS_OUTPUT.PUT_LINE('ID: ' || v_rec.Emp_id ||
+' | Name: ' || v_rec.Emp_Name ||
+' | Salary: ' || v_rec.Salary);
+
+END LOOP;
+
+CLOSE c_emp;
+
 END;
+
 /
 
+Step 3: Implicit Cursor – Total Number of Tuples in Employee
 
 DECLARE
- v_count NUMBER;
+
+v_count NUMBER;
+
 BEGIN
- SELECT COUNT(*) INTO v_count FROM Employee;
- DBMS_OUTPUT.PUT_LINE('Total tuples in Employee table: ' || v_count);
+
+SELECT COUNT(*) INTO v_count FROM Employee;
+
+DBMS_OUTPUT.PUT_LINE('Total tuples in Employee table: ' || v_count);
+
+IF SQL%FOUND THEN
+
+DBMS_OUTPUT.PUT_LINE('Query executed successfully.');
+
+END IF;
+
 END;
+
 /
 
+Step 4: Parameterized Cursor – Salary of Employee by ID
 
 DECLARE
- v_emp_id NUMBER := &emp_id;
- CURSOR c_emp_salary(p_id NUMBER) IS
-   SELECT Emp_id, Emp_Name, Salary FROM Employee WHERE Emp_id = p_id;
- v_rec c_emp_salary%ROWTYPE;
+
+v_emp_id NUMBER := &emp_id;
+
+CURSOR c_emp_salary(p_id NUMBER) IS
+
+SELECT Emp_id, Emp_Name, Salary FROM Employee WHERE Emp_id = p_id;
+
+v_rec c_emp_salary%ROWTYPE;
+
 BEGIN
- OPEN c_emp_salary(v_emp_id);
- FETCH c_emp_salary INTO v_rec;
- IF c_emp_salary%FOUND THEN
-   DBMS_OUTPUT.PUT_LINE('Employee ID   : ' || v_rec.Emp_id);
-   DBMS_OUTPUT.PUT_LINE('Employee Name : ' || v_rec.Emp_Name);
-   DBMS_OUTPUT.PUT_LINE('Salary        : ' || v_rec.Salary);
- ELSE
-   DBMS_OUTPUT.PUT_LINE('No employee found');
- END IF;
- CLOSE c_emp_salary;
+
+OPEN c_emp_salary(v_emp_id);
+
+FETCH c_emp_salary INTO v_rec;
+
+IF c_emp_salary%FOUND THEN
+
+DBMS_OUTPUT.PUT_LINE('Employee ID   : ' || v_rec.Emp_id);
+
+DBMS_OUTPUT.PUT_LINE('Employee Name : ' || v_rec.Emp_Name);
+
+DBMS_OUTPUT.PUT_LINE('Salary        : ' || v_rec.Salary);
+
+ELSE
+
+DBMS_OUTPUT.PUT_LINE('No employee found with ID: ' || v_emp_id);
+
+END IF;
+
+CLOSE c_emp_salary;
+
 END;
+
 /
