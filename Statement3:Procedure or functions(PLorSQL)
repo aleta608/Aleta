@@ -1,36 +1,133 @@
-CREATE TABLE Account(
-Account_No NUMBER PRIMARY KEY,
-Cust_Name VARCHAR2(100),
-Balance NUMBER(12,2),
-NoOfYears NUMBER
+📝 Language: PL/SQL (Oracle).
+
+Step 1: Create Tables
+
+CREATE TABLE Account (
+
+    Account_No NUMBER PRIMARY KEY,
+
+    Cust_Name VARCHAR2(100),
+
+    Balance NUMBER(12,2),
+
+    NoOfYears NUMBER
+
 );
 
-CREATE TABLE Earned_Interest(
-Account_No NUMBER,
-Interest_Amt NUMBER(12,2)
+CREATE TABLE Earned_Interest (
+
+    Account_No NUMBER,
+
+    Interest_Amt NUMBER(12,2)
+
 );
 
+Step 2: Insert Sample Data
+
+INSERT INTO Account VALUES (1001,'Ravi Sharma',100000,5);
+
+INSERT INTO Account VALUES (1002,'Priya Mehta',200000,8);
+
+INSERT INTO Account VALUES (1003,'Arjun Das',40000,3);
+
+INSERT INTO Account VALUES (1004,'Sneha Patil',75000,12);
+
+COMMIT;
+
+Step 3: Procedure to Calculate Simple Interest
 
 CREATE OR REPLACE PROCEDURE calc_simple_interest(
+
 p_account_no IN NUMBER,
+
 p_rate IN NUMBER
+
 )
+
 AS
+
 v_balance NUMBER;
+
 v_years NUMBER;
+
 v_interest NUMBER;
+
 BEGIN
-SELECT Balance,NoOfYears INTO v_balance,v_years
+
+SELECT Balance, NoOfYears
+
+INTO v_balance, v_years
+
 FROM Account
-WHERE Account_No=p_account_no;
 
-v_interest := (v_balance*p_rate*v_years)/100;
+WHERE Account_No = p_account_no;
 
-INSERT INTO Earned_Interest
+v_interest := (v_balance * p_rate * v_years) / 100;
+
+INSERT INTO Earned_Interest(Account_No, Interest_Amt)
+
 VALUES(p_account_no,v_interest);
 
 COMMIT;
+
+DBMS_OUTPUT.PUT_LINE('Interest calculated: ' || v_interest);
+
 END;
+
 /
 
+Step 4: Execute Procedure
+
+SET SERVEROUTPUT ON;
+
 EXEC calc_simple_interest(1001,7.5);
+
+Step 5: Function for Accounts with Balance > 50000
+
+CREATE OR REPLACE FUNCTION get_high_balance_accounts
+
+RETURN SYS_REFCURSOR
+
+AS
+
+v_cursor SYS_REFCURSOR;
+
+BEGIN
+
+OPEN v_cursor FOR
+
+SELECT * FROM Account WHERE Balance > 50000;
+
+RETURN v_cursor;
+
+END;
+
+/
+
+Step 6: Execute Function
+
+DECLARE
+
+v_cursor SYS_REFCURSOR;
+
+v_account Account%ROWTYPE;
+
+BEGIN
+
+v_cursor := get_high_balance_accounts();
+
+LOOP
+
+FETCH v_cursor INTO v_account;
+
+EXIT WHEN v_cursor%NOTFOUND;
+
+DBMS_OUTPUT.PUT_LINE(v_account.Account_No || ' ' || v_account.Cust_Name);
+
+END LOOP;
+
+CLOSE v_cursor;
+
+END;
+
+/
