@@ -1,0 +1,91 @@
+📝 Language: MongoDB Shell.
+
+Step 1: Insert 10 Documents into Student Collection
+
+use StudentCRUD;
+
+db.Student.insertMany([
+
+{ Roll_No:"A01", Name:"Ravi Kumar", Class:"TE", Marks:72, Address:"Pune", Enrolled_Courses:["DBMS","OS","CN"] },
+
+{ Roll_No:"A02", Name:"Priya Das", Class:"SE", Marks:85, Address:"Mumbai", Enrolled_Courses:["DBMS","TOC","Maths"] },
+
+{ Roll_No:"A03", Name:"Arjun Patel", Class:"BE", Marks:91, Address:"Delhi", Enrolled_Courses:["OS","CN","DBMS"] },
+
+{ Roll_No:"A04", Name:"Sneha Joshi", Class:"FE", Marks:15, Address:"Pune", Enrolled_Courses:["Maths","Physics"] },
+
+{ Roll_No:"A05", Name:"Sam Nair", Class:"TE", Marks:58, Address:"Chennai", Enrolled_Courses:["TOC","DBMS"] },
+
+{ Roll_No:"A06", Name:"Anita Roy", Class:"SE", Marks:44, Address:"Hyderabad", Enrolled_Courses:["CN","OS"] },
+
+{ Roll_No:"A07", Name:"Karan Mehta", Class:"BE", Marks:76, Address:"Pune", Enrolled_Courses:["TOC","DBMS","CN"] },
+
+{ Roll_No:"A08", Name:"Kavya Singh", Class:"TE", Marks:62, Address:"Mumbai", Enrolled_Courses:["DBMS","Maths"] },
+
+{ Roll_No:"A09", Name:"Rohan Das", Class:"FE", Marks:18, Address:"Delhi", Enrolled_Courses:["Physics","Chemistry"] },
+
+{ Roll_No:"A10", Name:"Meena Patil", Class:"SE", Marks:88, Address:"Pune", Enrolled_Courses:["TOC","DBMS","OS"] }
+
+]);
+
+Step 2: Students enrolled in 'DBMS' and 'TOC'
+
+db.Student.find({
+
+Enrolled_Courses: { $all: ["DBMS", "TOC"] }
+
+}, { Name: 1, Enrolled_Courses: 1, _id: 0 }).pretty();
+
+Step 3: Roll numbers & class of students with marks > 50 OR class = 'TE'
+
+db.Student.find(
+
+{ $or: [ { Marks: { $gt: 50 } }, { Class: "TE" } ] },
+
+{ Roll_No: 1, Class: 1, Marks: 1, _id: 0 }
+
+).pretty();
+
+Step 4: Update entire record of roll_no A10
+
+db.Student.replaceOne(
+
+{ Roll_No: "A10" },
+
+{
+
+Roll_No: "A10",
+
+Name: "Meena Patil Updated",
+
+Class: "BE",
+
+Marks: 92,
+
+Address: "Pune",
+
+Enrolled_Courses: ["DBMS", "TOC", "OS", "CN"]
+
+}
+
+);
+
+Step 5: Students with 3rd and 4th highest marks
+
+db.Student.find()
+
+.sort({ Marks: -1 })
+
+.skip(2)
+
+.limit(2)
+
+.pretty();
+
+Step 6: Delete students with marks < 20
+
+db.Student.deleteMany({ Marks: { $lt: 20 } });
+
+Step 7: Delete only the first record from the collection
+
+db.Student.deleteOne({});
