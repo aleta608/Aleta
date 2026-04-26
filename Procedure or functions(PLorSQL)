@@ -1,0 +1,36 @@
+CREATE TABLE Account(
+Account_No NUMBER PRIMARY KEY,
+Cust_Name VARCHAR2(100),
+Balance NUMBER(12,2),
+NoOfYears NUMBER
+);
+
+CREATE TABLE Earned_Interest(
+Account_No NUMBER,
+Interest_Amt NUMBER(12,2)
+);
+
+
+CREATE OR REPLACE PROCEDURE calc_simple_interest(
+p_account_no IN NUMBER,
+p_rate IN NUMBER
+)
+AS
+v_balance NUMBER;
+v_years NUMBER;
+v_interest NUMBER;
+BEGIN
+SELECT Balance,NoOfYears INTO v_balance,v_years
+FROM Account
+WHERE Account_No=p_account_no;
+
+v_interest := (v_balance*p_rate*v_years)/100;
+
+INSERT INTO Earned_Interest
+VALUES(p_account_no,v_interest);
+
+COMMIT;
+END;
+/
+
+EXEC calc_simple_interest(1001,7.5);
