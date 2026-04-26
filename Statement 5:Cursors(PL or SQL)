@@ -1,18 +1,77 @@
-CREATE TABLE Products(
-Product_id NUMBER PRIMARY KEY,
-Product_Name VARCHAR2(100),
-Product_Type VARCHAR2(50),
-Price NUMBER(10,2)
+
+📝 Language: PL/SQL (Oracle).
+
+Step 1: Create & Populate Products Table
+
+CREATE TABLE Products (
+
+    Product_id   NUMBER PRIMARY KEY,
+
+    Product_Name VARCHAR2(100),
+
+    Product_Type VARCHAR2(50),
+
+    Price        NUMBER(10,2)
+
 );
 
+INSERT INTO Products VALUES (1,'Cotton Shirt','Apparel',1200);
+INSERT INTO Products VALUES (2,'Denim Jeans','Apparel',2500);
+INSERT INTO Products VALUES (3,'Leather Jacket','Apparel',8000);
+INSERT INTO Products VALUES (4,'Running Shoes','Footwear',4500);
+INSERT INTO Products VALUES (5,'Smart Watch','Electronics',15000);
+INSERT INTO Products VALUES (6,'Kurta','Apparel',800);
+INSERT INTO Products VALUES (7,'Blazer','Apparel',6000);
+INSERT INTO Products VALUES (8,'Laptop','Electronics',55000);
+INSERT INTO Products VALUES (9,'Saree','Apparel',3000);
+INSERT INTO Products VALUES (10,'Sneakers','Footwear',3500);
+
+COMMIT;
+
+Step 2: Parameterized Cursor – Products in Price Range with Type 'Apparel'
 
 DECLARE
+
+v_min_price NUMBER := &min_price;
+v_max_price NUMBER := &max_price;
+
+CURSOR c_products(p_min NUMBER, p_max NUMBER) IS
+SELECT * FROM Products
+WHERE Product_Type='Apparel'
+AND Price BETWEEN p_min AND p_max;
+
+v_rec c_products%ROWTYPE;
+
+BEGIN
+
+OPEN c_products(v_min_price,v_max_price);
+
+LOOP
+FETCH c_products INTO v_rec;
+EXIT WHEN c_products%NOTFOUND;
+
+DBMS_OUTPUT.PUT_LINE(v_rec.Product_Name);
+
+END LOOP;
+
+CLOSE c_products;
+
+END;
+/
+
+Step 3: Explicit Cursor – Products with Price > 5000
+
+DECLARE
+
 CURSOR c_expensive IS
-SELECT * FROM Products WHERE Price>5000;
+SELECT * FROM Products WHERE Price > 5000;
 
 v_rec c_expensive%ROWTYPE;
+
 BEGIN
+
 OPEN c_expensive;
+
 LOOP
 FETCH c_expensive INTO v_rec;
 EXIT WHEN c_expensive%NOTFOUND;
@@ -20,6 +79,21 @@ EXIT WHEN c_expensive%NOTFOUND;
 DBMS_OUTPUT.PUT_LINE(v_rec.Product_Name);
 
 END LOOP;
+
 CLOSE c_expensive;
+
+END;
+/
+
+Step 4: Implicit Cursor – Increment Price by 1000
+
+BEGIN
+
+UPDATE Products SET Price = Price + 1000;
+
+DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT);
+
+COMMIT;
+
 END;
 /
