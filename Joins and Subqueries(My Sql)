@@ -1,0 +1,31 @@
+CREATE DATABASE EmpDB;
+USE EmpDB;
+
+
+CREATE TABLE Manager(
+Manager_id INT PRIMARY KEY,
+Manager_name VARCHAR(100)
+);
+
+CREATE TABLE Departments(
+Department_id INT PRIMARY KEY,
+Department_name VARCHAR(100),
+Manager_id INT
+);
+
+CREATE TABLE Employee(
+Employee_id INT PRIMARY KEY,
+First_name VARCHAR(50),
+Last_name VARCHAR(50),
+Salary DECIMAL(10,2),
+Department_id INT
+);
+
+
+SELECT e.First_name,e.Last_name,e.Salary
+FROM Employee e
+JOIN Departments d
+ON e.Department_id=d.Department_id
+WHERE e.Salary >
+(SELECT AVG(Salary) FROM Employee)
+AND d.Department_name LIKE '%IT%';
