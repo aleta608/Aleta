@@ -1,0 +1,90 @@
+-- Language: PL/SQL (Procedures & Functions)
+
+-- Step 1: Create Employee Table
+
+CREATE TABLE Employee (
+    emp_id NUMBER PRIMARY KEY,
+    dept_id NUMBER,
+    emp_name VARCHAR2(50),
+    DoJ DATE,
+    salary NUMBER,
+    commission NUMBER,
+    job_title VARCHAR2(50)
+);
+
+--------------------------------------------------
+
+-- Step 2: Stored Procedure to Calculate Commission
+
+CREATE OR REPLACE PROCEDURE calc_commission IS
+    v_exp NUMBER;
+BEGIN
+    FOR rec IN (SELECT * FROM Employee) LOOP
+
+        -- Calculate Experience (in years)
+        v_exp := FLOOR(MONTHS_BETWEEN(SYSDATE, rec.DoJ) / 12);
+
+        IF rec.salary > 10000 THEN
+            UPDATE Employee
+            SET commission = rec.salary * 0.004
+            WHERE emp_id = rec.emp_id;
+
+        ELSIF rec.salary < 10000 AND v_exp > 10 THEN
+            UPDATE Employee
+            SET commission = rec.salary * 0.0035
+            WHERE emp_id = rec.emp_id;
+
+        ELSIF rec.salary < 3000 THEN
+            UPDATE Employee
+            SET commission = rec.salary * 0.0025
+            WHERE emp_id = rec.emp_id;
+
+        ELSE
+            UPDATE Employee
+            SET commission = rec.salary * 0.0015
+            WHERE emp_id = rec.emp_id;
+
+        END IF;
+
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+--------------------------------------------------
+
+-- Step 3: Create Department and Manager Tables
+
+CREATE TABLE Department (
+    dept_id NUMBER PRIMARY KEY,
+    dept_name VARCHAR2(50),
+    manager_id NUMBER
+);
+
+CREATE TABLE Manager (
+    manager_id NUMBER PRIMARY KEY,
+    manager_name VARCHAR2(50)
+);
+
+--------------------------------------------------
+
+-- Step 4: Function to Get Manager Name using Dept ID
+
+CREATE OR REPLACE FUNCTION get_manager_name(p_dept_id NUMBER)
+RETURN VARCHAR2
+IS
+    v_name VARCHAR2(50);
+BEGIN
+    SELECT m.manager_name INTO v_name
+    FROM Manager m
+    JOIN Department d ON m.manager_id = d.manager_id
+    WHERE d.dept_id = p_dept_id;
+
+    RETURN v_name;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'No Manager Found';
+END;
+/
