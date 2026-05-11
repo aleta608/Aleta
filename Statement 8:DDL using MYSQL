@@ -1,104 +1,55 @@
-📝 Language: MySQL.
+-- Code 8: Triggers (As per DBMSL Problem Statement 8)
+-- Step 1: Create Trigger to Prevent Salary Decrease
+DELIMITER $$
 
-Step 1: Create Tables with Referential Integrity
+CREATE TRIGGER prevent_salary_decrease
+BEFORE UPDATE ON Employee
+FOR EACH ROW
+BEGIN
+    IF NEW.salary < OLD.salary THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Salary cannot be decreased';
+    END IF;
+END $$
 
-CREATE DATABASE IF NOT EXISTS BankDDL;
+DELIMITER ;
 
-USE BankDDL;
-
-CREATE TABLE Customer (
-
-    CustID INT AUTO_INCREMENT PRIMARY KEY,
-
-    Name VARCHAR(100) NOT NULL,
-
-    Cust_Address VARCHAR(200),
-
-    Phone_no VARCHAR(15),
-
-    Email_ID VARCHAR(100),
-
-    Age INT
-
+-- Step 2: Create Job_History Table
+CREATE TABLE Job_History (
+    emp_id INT,
+    old_job_title VARCHAR(50),
+    old_dept_id INT,
+    start_date DATE,
+    end_date DATE
 );
 
-CREATE TABLE Branch (
+-- Step 3: Create Trigger for Job Title Change
+DELIMITER $$
 
-    Branch_ID INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TRIGGER job_title_update
+AFTER UPDATE ON Employee
+FOR EACH ROW
+BEGIN
+    IF OLD.job_title <> NEW.job_title THEN
+        INSERT INTO Job_History(emp_id, old_job_title, old_dept_id, start_date, end_date)
+        VALUES(
+            OLD.emp_id,
+            OLD.job_title,
+            OLD.dept_id,
+            OLD.DoJ,
+            CURDATE()
+        );
+    END IF;
+END $$
 
-    Branch_Name VARCHAR(100) NOT NULL,
+DELIMITER ;
 
-    Address VARCHAR(200)
+-- Step 4: Test Trigger (Salary Decrease - Should Fail)
+UPDATE Employee
+SET salary = salary - 5000
+WHERE emp_id = 101;
 
-);
-
-CREATE TABLE Account (
-
-    Account_no INT PRIMARY KEY,
-
-    Branch_ID INT NOT NULL,
-
-    CustID INT NOT NULL,
-
-    date_open DATE,
-
-    Account_type VARCHAR(50),
-
-    Balance DECIMAL(12,2),
-
-    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID) ON DELETE CASCADE,
-
-    FOREIGN KEY (CustID) REFERENCES Customer(CustID) ON DELETE CASCADE
-
-);
-
-Step 2: Insert Sample Data
-
-INSERT INTO Customer(Name,Cust_Address,Phone_no,Email_ID,Age) VALUES
-('Amit Sharma','Pune','9876543210','amit@mail.com',30),
-('Anita Desai','Mumbai','9823456781','anita@mail.com',42);
-
-INSERT INTO Branch(Branch_Name,Address) VALUES
-('Pune Branch','Camp, Pune'),
-('Mumbai Branch','Dadar, Mumbai');
-
-INSERT INTO Account VALUES
-(1001,1,1,'2020-06-15','Saving Account',65000),
-(1002,2,2,'2019-03-20','Current Account',45000);
-
-Step 3: Create Index on Primary Key of Account
-
-CREATE INDEX idx_account_pk ON Account(Account_no);
-
-Step 4: Create View Customer_Info
-
-CREATE VIEW Customer_Info AS
-
-SELECT c.CustID,c.Name,c.Cust_Address,c.Age,a.Account_no,a.date_open,a.Balance
-
-FROM Customer c
-
-JOIN Account a ON c.CustID = a.CustID
-
-WHERE c.Age < 45;
-
-SELECT * FROM Customer_Info;
-
-Step 5: Update View Data
-
-UPDATE Account SET date_open='2017-04-16'
-WHERE Account_no IN
-(SELECT Account_no FROM Customer_Info);
-
-Step 6: Sequence on Branch Table (MySQL simulation)
-
-ALTER TABLE Branch AUTO_INCREMENT = 100;
-
-INSERT INTO Branch(Branch_Name,Address)
-VALUES('New Branch','New Location');
-
-Step 7: Synonym Branch_info
-
-CREATE VIEW Branch_info AS SELECT * FROM Branch;
-
-SELECT * FROM Branch_info;
+-- Step 5: Test Trigger (Job Title Change - Should Insert Record)
+UPDATE Employee
+SET job_title = 'Manager'
+WHERE emp_id = 101;
