@@ -1,0 +1,89 @@
+-- Language: MySQL (JOINS & SUBQUERIES)
+
+-- Step 1: Create Tables
+
+CREATE TABLE Departments (
+    Department_id INT PRIMARY KEY,
+    Department_name VARCHAR(50),
+    Manager_id INT,
+    Location_id INT
+);
+
+CREATE TABLE Locations (
+    Location_id INT PRIMARY KEY,
+    Street_address VARCHAR(100),
+    Postal_code VARCHAR(20),
+    City VARCHAR(50),
+    State VARCHAR(50),
+    Country_id VARCHAR(50)
+);
+
+CREATE TABLE Manager (
+    Manager_id INT PRIMARY KEY,
+    Manager_name VARCHAR(50)
+);
+
+CREATE TABLE Employee (
+    Employee_id INT PRIMARY KEY,
+    First_name VARCHAR(50),
+    Last_name VARCHAR(50),
+    Hire_date DATE,
+    Salary DECIMAL(10,2),
+    Job_title VARCHAR(50),
+    Manager_id INT,
+    Department_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+);
+
+--------------------------------------------------
+
+-- Step 2: Insert Sample Data
+
+INSERT INTO Manager VALUES
+(1,'Raj Mehta'),
+(2,'Anita Shah');
+
+INSERT INTO Locations VALUES
+(101,'Street 1','400001','Mumbai','MH','India'),
+(102,'Street 2','10001','New York','NY','United States');
+
+INSERT INTO Departments VALUES
+(10,'HR',1,101),
+(20,'IT',2,102);
+
+INSERT INTO Employee VALUES
+(1,'Amit','Sharma','2018-01-10',50000,'HR Exec',1,10),
+(2,'Riya','Singh','2019-03-15',60000,'IT Engg',2,20),
+(3,'John','Doe','2020-06-20',70000,'IT Manager',2,20);
+
+--------------------------------------------------
+
+-- Q1: Employees earning more than 'Singh'
+
+SELECT First_name, Last_name, Salary
+FROM Employee
+WHERE Salary > (
+    SELECT Salary FROM Employee WHERE Last_name = 'Singh'
+);
+
+--------------------------------------------------
+
+-- Q2: Employees with manager & department in United States
+
+SELECT E.First_name, E.Last_name
+FROM Employee E
+JOIN Departments D ON E.Department_id = D.Department_id
+JOIN Locations L ON D.Location_id = L.Location_id
+WHERE E.Manager_id IS NOT NULL
+AND L.Country_id = 'United States';
+
+--------------------------------------------------
+
+-- Q3: Employees with Salary > Average Salary
+
+SELECT First_name, Last_name, Salary
+FROM Employee
+WHERE Salary > (
+    SELECT AVG(Salary) FROM Employee
+);
