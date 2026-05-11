@@ -1,0 +1,106 @@
+-- Language: MySQL (DML)
+
+-- Step 1: Create Tables
+
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_Address VARCHAR(50),
+    Age INT
+);
+
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    date_open DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10,2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+--------------------------------------------------
+
+-- Step 2: Insert Sample Data
+
+INSERT INTO Customer VALUES
+(101,'Amit','Pune','9876543210','amit@gmail.com',30),
+(102,'Riya','Mumbai','9123456780','riya@gmail.com',40),
+(103,'Anil','Pune','9988776655','anil@gmail.com',35);
+
+INSERT INTO Branch VALUES
+(1,'Main','Pune'),
+(2,'City','Mumbai');
+
+INSERT INTO Account VALUES
+(4001,1,101,'2017-04-16','Saving',60000),
+(4002,2,102,'2017-05-10','Current',30000),
+(4003,1,103,'2017-06-15','Saving',25000);
+
+--------------------------------------------------
+
+-- Step 3: Modify size of Email_Address
+
+ALTER TABLE Customer
+MODIFY Email_Address VARCHAR(20);
+
+--------------------------------------------------
+
+-- Step 4: Make Email_Address NOT NULL
+
+ALTER TABLE Customer
+MODIFY Email_Address VARCHAR(20) NOT NULL;
+
+--------------------------------------------------
+
+-- Step 5: Total customers with balance > 50000
+
+SELECT COUNT(DISTINCT C.CustID) AS Total_Customers
+FROM Customer C
+JOIN Account A ON C.CustID = A.CustID
+WHERE A.Balance > 50000;
+
+--------------------------------------------------
+
+-- Step 6: Average balance for Saving Account
+
+SELECT AVG(Balance) AS Avg_Balance
+FROM Account
+WHERE Account_type = 'Saving';
+
+--------------------------------------------------
+
+-- Step 7: Customers in Pune OR Name starts with 'A'
+
+SELECT *
+FROM Customer
+WHERE Cust_Address = 'Pune'
+OR Name LIKE 'A%';
+
+--------------------------------------------------
+
+-- Step 8: Create Saving_Account Table from Account
+
+CREATE TABLE Saving_Account AS
+SELECT Account_no, Branch_ID, CustID, date_open, Balance
+FROM Account
+WHERE Account_type = 'Saving';
+
+--------------------------------------------------
+
+-- Step 9: Customer details Age-wise with balance >= 20000
+
+SELECT C.*, A.Balance
+FROM Customer C
+JOIN Account A ON C.CustID = A.CustID
+WHERE A.Balance >= 20000
+ORDER BY C.Age ASC;
