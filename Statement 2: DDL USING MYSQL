@@ -1,0 +1,104 @@
+-- Language: MySQL (DDL)
+
+-- Step 1: Create Tables with Referential Integrity
+
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    open_date DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10,2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+--------------------------------------------------
+
+-- Step 2: Insert Sample Data
+
+INSERT INTO Customer VALUES
+(101,'Amit','Pune','9876543210','amit@gmail.com',30),
+(102,'Riya','Mumbai','9123456780','riya@gmail.com',40),
+(103,'Raj','Nashik','9988776655','raj@gmail.com',35);
+
+INSERT INTO Branch VALUES
+(1,'Main','Pune'),
+(2,'City','Mumbai');
+
+INSERT INTO Account VALUES
+(2001,1,101,'2018-08-16','Saving',60000),
+(2002,2,102,'2018-02-16','Loan',80000),
+(2003,1,103,'2018-08-16','Saving',40000);
+
+--------------------------------------------------
+
+-- Step 3: View - Saving Account (open date 16-08-2018)
+
+CREATE VIEW Saving_Account AS
+SELECT C.*, A.open_date, A.Account_type, A.Balance
+FROM Customer C
+JOIN Account A ON C.CustID = A.CustID
+WHERE A.Account_type = 'Saving'
+AND A.open_date = '2018-08-16';
+
+--------------------------------------------------
+
+-- Step 4: Update View (Base Table Update)
+
+UPDATE Customer
+SET Cust_Address = 'Pune'
+WHERE CustID = 103;
+
+--------------------------------------------------
+
+-- Step 5: View - Loan Account (open date 16-02-2018)
+
+CREATE VIEW Loan_Account AS
+SELECT C.*, A.open_date, A.Account_type, A.Balance
+FROM Customer C
+JOIN Account A ON C.CustID = A.CustID
+WHERE A.Account_type = 'Loan'
+AND A.open_date = '2018-02-16';
+
+--------------------------------------------------
+
+-- Step 6: Index on Customer Primary Key
+
+CREATE INDEX idx_customer_id ON Customer(CustID);
+
+--------------------------------------------------
+
+-- Step 7: Index on Branch Primary Key
+
+CREATE INDEX idx_branch_id ON Branch(Branch_ID);
+
+--------------------------------------------------
+
+-- Step 8: Sequence (MySQL Alternative)
+
+CREATE TABLE Customer_seq (
+    CustID INT AUTO_INCREMENT PRIMARY KEY
+);
+
+--------------------------------------------------
+
+-- Step 9: Synonym (Using View)
+
+CREATE VIEW Cust_info AS
+SELECT * FROM Branch;
