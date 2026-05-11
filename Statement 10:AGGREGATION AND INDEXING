@@ -1,0 +1,43 @@
+//
+// Code 10: Aggregation & Indexing using MongoDB (As per DBMSL - 7 Operations)
+//
+
+// Step 1: Create Collection
+db.createCollection("Movies_Data");
+
+// Step 2: Insert Sample Documents
+db.Movies_Data.insertMany([
+{ Movie_ID: 1, Movie_Name: "MovieA", Director: "Raj", Genre: "Action", BoxOfficeCollection: 500 },
+{ Movie_ID: 2, Movie_Name: "MovieB", Director: "Raj", Genre: "Drama", BoxOfficeCollection: 300 },
+{ Movie_ID: 3, Movie_Name: "MovieC", Director: "Amit", Genre: "Action", BoxOfficeCollection: 700 },
+{ Movie_ID: 4, Movie_Name: "MovieD", Director: "Amit", Genre: "Drama", BoxOfficeCollection: 450 },
+{ Movie_ID: 5, Movie_Name: "MovieE", Director: "Neha", Genre: "Comedy", BoxOfficeCollection: 600 }
+]);
+
+// Operation 1: Count Movies by Each Director
+db.Movies_Data.aggregate([
+  { $group: { _id: "$Director", Total_Movies: { $sum: 1 } } }
+]);
+
+// Operation 2: Highest Collection in Each Genre
+db.Movies_Data.aggregate([
+  { $group: { _id: "$Genre", Max_Collection: { $max: "$BoxOfficeCollection" } } }
+]);
+
+// Operation 3: Highest Collection in Each Genre (Ascending Order)
+db.Movies_Data.aggregate([
+  { $group: { _id: "$Genre", Max_Collection: { $max: "$BoxOfficeCollection" } } },
+  { $sort: { Max_Collection: 1 } }
+]);
+
+// Operation 4: Create Index on Movie_ID
+db.Movies_Data.createIndex({ Movie_ID: 1 });
+
+// Operation 5: Create Index on Movie_Name and Director
+db.Movies_Data.createIndex({ Movie_Name: 1, Director: 1 });
+
+// Operation 6: Drop Index on Movie_ID
+db.Movies_Data.dropIndex({ Movie_ID: 1 });
+
+// Operation 7: Drop Index on Movie_Name and Director
+db.Movies_Data.dropIndex({ Movie_Name: 1, Director: 1 });
